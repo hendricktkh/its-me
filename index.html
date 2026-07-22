@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>hendrick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400;1,600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
   :root {
     --bg: #e8ebf0;
@@ -25,7 +30,6 @@
   }
  
   * { box-sizing: border-box; }
- 
   html { scroll-behavior: smooth; }
  
   body {
@@ -52,7 +56,6 @@
     opacity: 0.5;
     pointer-events: none;
     z-index: 9999;
-    /* base translate(-50%,-50%) centers it; JS appends position + squish */
     transition: width .2s ease, height .2s ease, opacity .2s ease, background .3s ease;
     mix-blend-mode: multiply;
     will-change: transform;
@@ -132,44 +135,78 @@
  
   main { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
  
-  /* ---------- Hero ---------- */
-  .hero {
-    min-height: 70vh;
+  /* ---------- Hero: explosion zone ---------- */
+  .hero-explosion-wrapper {
+    min-height: 100vh;
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 1.2rem;
+    justify-content: flex-end;
+    padding-bottom: 3rem;
+    overflow: visible;
   }
- 
-  .hero h1 {
+
+  .explosion-letters {
+    display: flex;
+    flex-wrap: wrap;
+    line-height: 1;
+    padding-left: 0;
+  }
+
+  .explosion-letters .letter {
     font-family: var(--font-display);
-    font-size: clamp(2.4rem, 7vw, 4.5rem);
-    line-height: 1.05;
-    margin: 0;
+    font-size: clamp(3rem, 9vw, 6rem);
+    font-weight: 600;
+    line-height: 1;
+    display: inline-block;
+    will-change: transform;
+    color: var(--text);
+    transition: color .4s ease;
   }
- 
-  .hero h1 span {
+  body.dark .explosion-letters .letter { color: var(--text-dark); }
+
+  .explosion-letters .letter.accent-letter {
     color: var(--accent);
     font-style: italic;
   }
-  body.dark .hero h1 span { color: var(--accent-dm); }
-  body.dark .section-title .dot { color: var(--accent-dm); }
-  body.dark .card a { color: var(--accent-dm); }
- 
-  .hero p {
+  body.dark .explosion-letters .letter.accent-letter { color: var(--accent-dm); }
+
+  .explosion-letters .letter-space {
+    display: inline-block;
+    width: 0.35em;
+  }
+
+  /* ---------- Hero: static text section (below explosion) ---------- */
+  .hero-static {
+    padding: 5rem 0 3rem;
+  }
+
+  .hero-static p {
     font-size: 1.1rem;
     max-width: 480px;
     opacity: 0.8;
+    margin: 0 0 2rem;
   }
- 
-  .hero .cta {
+
+  .hero-static .cta {
     display: flex;
     gap: 1rem;
-    margin-top: 0.5rem;
     flex-wrap: wrap;
   }
  
-  /* Neumorphic button */
+  /* ---------- Section headings ---------- */
+  section { padding: 5rem 0; }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .section-title .dot, .contact .dot { color: var(--accent); }
+  body.dark .section-title .dot { color: var(--accent-dm); }
+  body.dark .contact .dot { color: var(--accent-dm); }
+  body.dark .card a { color: var(--accent-dm); }
+ 
+  /* ---------- Neumorphic button ---------- */
   .btn {
     font-family: var(--font-body);
     font-size: 0.95rem;
@@ -205,11 +242,10 @@
     box-shadow: 6px 6px 16px rgba(178,107,255,0.35);
   }
 
-  /* ---------- Magnetic buttons (nudge toward the cursor, spring back) ----------
-     transition is applied inline by JS: none while following the cursor (so it
-     feels immediate), a springy one on release (so it feels satisfying). */
+  /* Magnetic only on specific buttons */
+  .btn.magnetic { position: relative; }
 
-  /* ---------- Radial "fill" reveal on primary buttons, cursor-anchored ---------- */
+  /* Radial fill reveal on primary buttons */
   .btn.primary { position: relative; overflow: hidden; isolation: isolate; }
   .btn.primary .btn-label { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.4rem; }
   .btn.primary::before {
@@ -230,16 +266,6 @@
   .btn.primary:hover .btn-label { color: var(--bg-dark); }
   body.dark .btn.primary:hover .btn-label { color: #1c0630; }
   .btn.primary .btn-label { transition: color .3s ease .05s; }
- 
-  /* ---------- Section headings ---------- */
-  section { padding: 5rem 0; }
-  .section-title {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    margin-bottom: 2rem;
-  }
-  .section-title .dot, .contact .dot { color: var(--accent); }
-  body.dark .contact .dot { color: var(--accent-dm); }
  
   /* ---------- Project cards ---------- */
   .grid {
@@ -343,6 +369,7 @@
     html { scroll-behavior: auto; }
     .about-blob { animation: none; }
     * { transition: none !important; }
+    .explosion-letters .letter { transform: none !important; }
   }
  
   /* ---------- Loader ---------- */
@@ -373,7 +400,6 @@
     to { transform: translateY(-16px); }
   }
  
-  /* ---- Loader variant B: bars + bouncing ball ---- */
   .loader-bars {
     position: relative;
     width: 75px;
@@ -420,7 +446,6 @@
   @keyframes barUp4 { 0% { transform: scale(1, 0.8); } 40% { transform: scale(1, 0.8); } 50% { transform: scale(1, 0.4); } 90% { transform: scale(1, 0.4); } 100% { transform: scale(1, 0.8); } }
   @keyframes barUp5 { 0% { transform: scale(1, 1); } 40% { transform: scale(1, 1); } 50% { transform: scale(1, 0.2); } 90% { transform: scale(1, 0.2); } 100% { transform: scale(1, 1); } }
  
-  /* ---- Loader variant C: crossed pulsing dots (rare) ---- */
   .loader-cross {
     position: relative;
     width: 2.5em;
@@ -453,61 +478,7 @@
     70% { height: 0.5em; box-shadow: 0.5em -1em rgba(255,110,199,0.75), -0.5em 1em rgba(233,169,32,0.75); }
     100% { box-shadow: 0.5em 1em rgba(255,110,199,0.75), -0.5em -1em rgba(233,169,32,0.75); }
   }
- 
-  /* ---- Loader variant D: washing machine (rare, ~20%) ---- */
-  .loader-washer {
-    width: 120px;
-    height: 150px;
-    background-color: #fff;
-    background-repeat: no-repeat;
-    background-image: linear-gradient(#ddd 50%, #bbb 51%),
-      linear-gradient(#ddd, #ddd), linear-gradient(#ddd, #ddd),
-      radial-gradient(ellipse at center, #aaa 25%, #eee 26%, #eee 50%, #0000 55%),
-      radial-gradient(ellipse at center, #aaa 25%, #eee 26%, #eee 50%, #0000 55%),
-      radial-gradient(ellipse at center, #aaa 25%, #eee 26%, #eee 50%, #0000 55%);
-    background-position: 0 20px, 45px 0, 8px 6px, 55px 3px, 75px 3px, 95px 3px;
-    background-size: 100% 4px, 1px 23px, 30px 8px, 15px 15px, 15px 15px, 15px 15px;
-    position: relative;
-    border-radius: 6%;
-    animation: shake 3s ease-in-out infinite;
-    transform-origin: 60px 180px;
-    display: none;
-  }
-  .loader-washer:before {
-    content: "";
-    position: absolute;
-    left: 5px;
-    top: 100%;
-    width: 7px;
-    height: 5px;
-    background: #aaa;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 102px 0 #aaa;
-  }
-  .loader-washer:after {
-    content: "";
-    position: absolute;
-    width: 95px;
-    height: 95px;
-    left: 0;
-    right: 0;
-    margin: auto;
-    bottom: 20px;
-    background-color: #bbdefb;
-    background-image: linear-gradient(to right, #0004 0%, #0004 49%, #0000 50%, #0000 100%),
-      linear-gradient(135deg, #64b5f6 50%, #607d8b 51%);
-    background-size: 30px 100%, 90px 80px;
-    border-radius: 50%;
-    background-repeat: repeat, no-repeat;
-    background-position: 0 0;
-    box-sizing: border-box;
-    border: 10px solid #DDD;
-    box-shadow: 0 0 0 4px #999 inset, 0 0 6px 6px #0004 inset;
-    animation: spin 3s ease-in-out infinite;
-  }
-  @keyframes spin { 0% { transform: rotate(0deg); } 50% { transform: rotate(360deg); } 75% { transform: rotate(750deg); } 100% { transform: rotate(1800deg); } }
-  @keyframes shake { 65%, 80%, 88%, 96% { transform: rotate(0.5deg); } 50%, 75%, 84%, 92% { transform: rotate(-0.5deg); } 0%, 50%, 100% { transform: rotate(0); } }
- 
+
   /* ---------- GitHub project cards loading state ---------- */
   .card.skeleton h3, .card.skeleton p, .card.skeleton .tag {
     background: var(--bg);
@@ -522,10 +493,9 @@
   @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
   .card .stars { font-size: 0.8rem; opacity: 0.6; margin-left: 0.4rem; }
  
-  /* ---------- See more button ---------- */
   .see-more-btn { margin-top: 2rem; }
  
-  /* ---------- Modals (all-projects browser + project detail) ---------- */
+  /* ---------- Modals ---------- */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -572,27 +542,6 @@
     opacity: 0.6;
   }
   .modal-close:hover { opacity: 1; }
- 
-  .category-tabs { display: flex; gap: 0.6rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-  .cat-tab {
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    border: none;
-    background: var(--bg);
-    color: var(--text);
-    cursor: pointer;
-    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
-    transition: background .2s ease, color .2s ease;
-  }
-  body.dark .cat-tab {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-    box-shadow: inset 2px 2px 4px var(--shadow-dark-dm), inset -2px -2px 4px var(--shadow-light-dm);
-  }
-  .cat-tab.active { background: var(--accent); color: #fff; box-shadow: none; }
-  body.dark .cat-tab.active { background: var(--accent-dm); color: #fff; }
  
   .detail-title { font-family: var(--font-display); font-size: 1.6rem; margin: 0.5rem 0 0.8rem; }
   .detail-blurb { line-height: 1.6; opacity: 0.85; margin-bottom: 1rem; }
@@ -643,48 +592,8 @@
   @media (max-width: 600px) {
     .now-playing { left: 0.7rem; bottom: 0.7rem; max-width: 190px; padding: 0.6rem 0.8rem; }
   }
- 
-  /* ---------- Terminal-style project cards ---------- */
-  .card.terminal {
-    background: #1d1e22;
-    padding: 2px;
-    box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-  }
-  body.dark .card.terminal {
-    box-shadow: 8px 8px 16px var(--shadow-dark-dm), -8px -8px 16px var(--shadow-light-dm);
-  }
-  .term-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 12px 14px 0;
-  }
-  .term-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .term-dot.red { background: #ff5f56; }
-  .term-dot.yellow { background: #ffbd2e; }
-  .term-dot.green { background: #27c93f; }
-  .term-title {
-    margin-left: auto;
-    font-family: var(--font-body);
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    color: rgb(212, 212, 212);
-  }
-  .term-body {
-    padding: 10px 16px 16px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    line-height: 1.7;
-  }
-  .term-line { margin: 0; color: rgb(212, 212, 212); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .term-key { color: rgb(156, 220, 254); }
-  .term-str { color: rgb(182, 206, 168); }
-  .term-comment { color: rgb(106, 153, 85); }
-  .term-lang { color: rgb(86, 156, 214); }
-  .term-link { color: var(--accent-2); text-decoration: none; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; }
-  body.dark .term-link { color: var(--accent-2-dm); }
- 
-  /* ---------- Focus visibility (keyboard nav / accessibility) ---------- */
+
+  /* ---------- Focus visibility ---------- */
   a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -723,7 +632,6 @@
   .nav-toggle-btn.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .nav-toggle-btn.active span:nth-child(2) { opacity: 0; }
   .nav-toggle-btn.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
- 
   .nav-overlay { display: none; }
  
   @media (max-width: 700px) {
@@ -749,7 +657,6 @@
     nav a { margin: 0 0 1.3rem 0; font-size: 1.15rem; }
     nav .social-links { margin: 0.5rem 0 1.5rem; }
     nav .toggle { margin-left: 0; }
- 
     .nav-overlay {
       display: block;
       position: fixed;
@@ -796,7 +703,7 @@
     #back-to-top { bottom: 0.8rem; right: 0.8rem; width: 42px; height: 42px; }
   }
  
-  /* ---------- Card "view code" quick-link icon ---------- */
+  /* ---------- Card "view code" quick-link ---------- */
   .card-code-link {
     position: absolute;
     top: 1.3rem;
@@ -821,11 +728,11 @@
     box-shadow: 2px 2px 6px var(--shadow-dark-dm), -2px -2px 6px var(--shadow-light-dm);
   }
  
-  /* ---------- Empty/error states with retry ---------- */
+  /* ---------- Empty/error states ---------- */
   .grid-status { max-width: 420px; }
   .grid-status p { font-size: 0.9rem; opacity: 0.65; margin: 0 0 1rem; line-height: 1.5; }
  
-  /* ---------- Contact: visible email + copy button ---------- */
+  /* ---------- Contact: email + copy ---------- */
   .email-copy-row {
     display: flex;
     align-items: center;
@@ -850,6 +757,30 @@
   .copy-btn { padding: 0.65rem 1rem; font-size: 0.85rem; }
   .copy-btn.copied { background: var(--accent-2); color: #10231b; }
   body.dark .copy-btn.copied { background: var(--accent-2-dm); color: #2a0f22; }
+
+  /* ---------- Terminal-style project cards ---------- */
+  .card.terminal {
+    background: #1d1e22;
+    padding: 2px;
+    box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  }
+  body.dark .card.terminal {
+    box-shadow: 8px 8px 16px var(--shadow-dark-dm), -8px -8px 16px var(--shadow-light-dm);
+  }
+  .term-header { display: flex; align-items: center; gap: 6px; padding: 12px 14px 0; }
+  .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .term-dot.red { background: #ff5f56; }
+  .term-dot.yellow { background: #ffbd2e; }
+  .term-dot.green { background: #27c93f; }
+  .term-title { margin-left: auto; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.05em; color: rgb(212, 212, 212); }
+  .term-body { padding: 10px 16px 16px; font-family: 'Courier New', monospace; font-size: 0.8rem; line-height: 1.7; }
+  .term-line { margin: 0; color: rgb(212, 212, 212); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .term-key { color: rgb(156, 220, 254); }
+  .term-str { color: rgb(182, 206, 168); }
+  .term-comment { color: rgb(106, 153, 85); }
+  .term-lang { color: rgb(86, 156, 214); }
+  .term-link { color: var(--accent-2); text-decoration: none; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; }
+  body.dark .term-link { color: var(--accent-2-dm); }
 </style>
 </head>
 <body class="dark">
@@ -869,7 +800,6 @@
     <div class="loader-bars__ball"></div>
   </div>
   <div class="loader-cross"></div>
-  <div class="loader-washer"></div>
 </div>
  
 <div id="now-playing" class="now-playing">
@@ -889,9 +819,7 @@
 </div>
  
 <canvas id="confetti-canvas" style="position:fixed; inset:0; pointer-events:none; z-index:9998;"></canvas>
- 
 <div id="blob"></div>
- 
 <button id="back-to-top" aria-label="Back to top">↑</button>
  
 <header>
@@ -918,43 +846,53 @@
 </header>
  
 <main>
- 
-  <section class="hero">
-    <h1>i build things<br>that are <span>(i hope)</span> fun.</h1>
-    <p> hola, me llamo hendrick. in this world of constant consuming, i try to create. this is it.</p>
+
+  <!-- ===== HERO: Letter Explosion Zone ===== -->
+  <!-- This section is the full-viewport scroll trigger area -->
+  <div class="hero-explosion-wrapper" id="hero-explosion-wrapper">
+    <div id="explosion-container" style="padding-bottom: 2rem;">
+      <!-- Line 1: "i do" -->
+      <div class="explosion-letters" id="letters-line1" style="margin-bottom: 0.1em;">
+        <!-- letters injected by JS -->
+      </div>
+      <!-- Line 2: "things." -->
+      <div class="explosion-letters" id="letters-line2">
+        <!-- letters injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HERO: Static text + CTA — sits BELOW the explosion zone ===== -->
+  <section class="hero-static" id="hero-static" style="padding-top: 2rem; padding-bottom: 3rem;">
+    <p>hola, me llamo hendrick. in this world of constant consuming, i try to create. this is it.</p>
     <div class="cta">
-      <button class="btn primary magnetic" onclick="document.getElementById('work').scrollIntoView()"><span class="btn-label">see my work</span></button>
-      <button class="btn magnetic" onclick="document.getElementById('contact').scrollIntoView()">say hi</button>
+      <button class="btn primary magnetic" id="btn-see-work"><span class="btn-label">see my work</span></button>
+      <button class="btn magnetic" id="btn-say-hi">say hi</button>
     </div>
   </section>
- 
+
   <section id="featured" style="padding-bottom:0;">
     <h2 class="section-title" style="font-size:1.1rem; opacity:0.6; margin-bottom:1rem;">featured</h2>
-    <div class="grid" id="featured-grid"><!-- filled by JS once projects are ready --></div>
+    <div class="grid" id="featured-grid"></div>
   </section>
 
   <section id="work">
     <h2 class="section-title">have a look at what i've made<span class="dot">.</span></h2>
-    <div class="grid" id="preview-grid"><!-- filled by JS from the projects array below --></div>
-    <button class="btn see-more-btn magnetic" id="see-more-btn">see more →</button>
+    <div class="grid" id="preview-grid"></div>
+    <button class="btn see-more-btn" id="see-more-btn">see more →</button>
   </section>
  
-  <!-- All-projects browser -->
+  <!-- All-projects browser (no category filter) -->
   <div id="projects-modal" class="modal-overlay hidden">
     <div class="modal">
       <button class="modal-close" data-close="projects-modal" aria-label="Close">&times;</button>
       <h2 class="section-title" style="margin-bottom:0.4rem;">all my projects<span class="dot">.</span></h2>
-      <p style="opacity:0.6; font-size:0.85rem; margin: 0 0 1rem;">pulled live from GitHub, most recent first</p>
-      <div class="category-tabs" role="tablist" aria-label="Filter projects by category">
-        <button class="cat-tab active" data-cat="all" role="tab" aria-selected="true">all</button>
-        <button class="cat-tab" data-cat="fun" role="tab" aria-selected="false">random / fun</button>
-        <button class="cat-tab" data-cat="serious" role="tab" aria-selected="false">serious mode</button>
-      </div>
+      <p style="opacity:0.6; font-size:0.85rem; margin: 0 0 1.5rem;">pulled live from GitHub, most recent first</p>
       <div class="grid" id="all-projects-grid"></div>
     </div>
   </div>
  
-  <!-- Single project detail, repo link only shows up here -->
+  <!-- Single project detail -->
   <div id="project-detail-modal" class="modal-overlay hidden">
     <div class="modal modal-small">
       <button class="modal-close" data-close="project-detail-modal" aria-label="Close">&times;</button>
@@ -965,21 +903,18 @@
     </div>
   </div>
  
-  <!-- Cancer Care Compass — custom project with a working "find charities near you" tool -->
+  <!-- Cancer Care Compass modal -->
   <div id="cancer-tool-modal" class="modal-overlay hidden">
     <div class="modal">
       <button class="modal-close" data-close="cancer-tool-modal" aria-label="Close">&times;</button>
       <h3 class="detail-title" style="margin-top:0;">cancer care compass</h3>
       <p class="detail-blurb">A small side-project idea: raise awareness and make it easy to find real cancer-support charities — for donating, volunteering, or getting help. Nothing here is invented data; it links straight to legitimate organizations and to a live, location-based search.</p>
-
       <div id="cc-status" style="font-size:0.85rem; opacity:0.75; margin-bottom:1rem;"></div>
-      <button class="btn primary magnetic" id="cc-locate-btn" style="margin-bottom:1.5rem;">
+      <button class="btn primary" id="cc-locate-btn" style="margin-bottom:1.5rem;">
         <span class="btn-label">📍 find charities near me</span>
       </button>
-
       <h4 style="font-family:var(--font-display); font-size:1.05rem; margin:0 0 0.8rem;">well-known national &amp; global orgs</h4>
       <div class="grid" id="cc-org-grid" style="grid-template-columns: repeat(2, minmax(0,1fr));"></div>
-
       <p style="font-size:0.75rem; opacity:0.55; margin-top:1.5rem; line-height:1.5;">
         "Find charities near me" opens Google Maps centered on your location so you get real, current, nearby results —
         this project intentionally avoids guessing or hard-coding charity locations, since that data changes and matters.
@@ -1020,10 +955,10 @@
   <section id="contact" class="contact">
     <h2>wanna chat?<span class="dot">.</span></h2>
     <p>i'm all over on the internet. find me or just send an email.</p>
-    <button class="btn primary magnetic" onclick="window.location.href='mailto:hendricktkh@gmail.com'"><span class="btn-label">Email me</span></button>
+    <button class="btn primary magnetic" id="btn-email-me" onclick="window.location.href='mailto:hendricktkh@gmail.com'"><span class="btn-label">Email me</span></button>
     <div class="email-copy-row">
       <span class="email-text">hendricktkh@gmail.com</span>
-      <button class="btn copy-btn magnetic" id="copy-email-btn" type="button">copy</button>
+      <button class="btn copy-btn" id="copy-email-btn" type="button">copy</button>
     </div>
     <div class="social-links contact-social">
       <a href="https://github.com/hendricktkh" target="_blank" rel="noopener" aria-label="GitHub profile">
@@ -1042,7 +977,69 @@
 </footer>
  
 <script>
-  // ---------- Cursor blob: eased trailing follow with a bit of squish ----------
+  // ============================================================
+  // GSAP Letter Explosion Hero
+  // ============================================================
+  gsap.registerPlugin(ScrollTrigger);
+
+  function getRandomSpeed() {
+    return 0.8 + Math.random() * 0.7;
+  }
+
+  function getRandomRotation() {
+    return Math.random() * 60 - 30;
+  }
+
+  function buildLetterLine(container, text, accentChars = []) {
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === ' ') {
+        const space = document.createElement('span');
+        space.className = 'letter-space';
+        container.appendChild(space);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'letter' + (accentChars.includes(i) ? ' accent-letter' : '');
+        div.dataset.speed = getRandomSpeed();
+        div.textContent = ch;
+        container.appendChild(div);
+      }
+    }
+  }
+
+  // Build "i do" on line 1, "things." on line 2
+  buildLetterLine(document.getElementById('letters-line1'), 'i do');
+  buildLetterLine(document.getElementById('letters-line2'), 'things.');
+
+  function initLetterExplosion() {
+    const allLetters = document.querySelectorAll('.explosion-letters .letter');
+    const wrapper = document.getElementById('hero-explosion-wrapper');
+
+    allLetters.forEach(letter => {
+      const speed = parseFloat(letter.dataset.speed || '1');
+      gsap.to(letter, {
+        y: (1 - speed) * ScrollTrigger.maxScroll(window) * 0.6,
+        rotation: getRandomRotation(),
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: wrapper,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.6,
+          invalidateOnRefresh: true
+        }
+      });
+    });
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(initLetterExplosion, 650); // after loader fades
+    ScrollTrigger.addEventListener('refreshInit', () => ScrollTrigger.refresh());
+  });
+
+  // ============================================================
+  // Cursor blob
+  // ============================================================
   const blob = document.getElementById('blob');
   const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   const blobPos = { x: mouse.x, y: mouse.y };
@@ -1052,29 +1049,24 @@
   window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
   function tickBlob() {
-    // ease toward the real cursor position — this lag + a touch of velocity-based
-    // squish is what makes it feel alive instead of glued to the pointer
     const ease = 0.18;
     blobPos.x += (mouse.x - blobPos.x) * ease;
     blobPos.y += (mouse.y - blobPos.y) * ease;
     blobVX = blobPos.x - prevBlobX;
     blobVY = blobPos.y - prevBlobY;
     prevBlobX = blobPos.x; prevBlobY = blobPos.y;
-
     const speed = Math.min(Math.hypot(blobVX, blobVY), 40);
     const stretch = 1 + speed / 90;
     const angle = Math.atan2(blobVY, blobVX) * (180 / Math.PI);
-
     if (!blob.classList.contains('blob-hovering')) {
-      blob.style.transform =
-        `translate(${blobPos.x}px, ${blobPos.y}px) translate(-50%,-50%) rotate(${angle}deg) scale(${stretch}, ${1 / stretch})`;
+      blob.style.transform = `translate(${blobPos.x}px, ${blobPos.y}px) translate(-50%,-50%) rotate(${angle}deg) scale(${stretch}, ${1 / stretch})`;
     } else {
       blob.style.transform = `translate(${blobPos.x}px, ${blobPos.y}px) translate(-50%,-50%)`;
     }
     requestAnimationFrame(tickBlob);
   }
   if (!coarsePointer) requestAnimationFrame(tickBlob);
-  else blob.style.display = 'none'; // no real cursor on touch devices
+  else blob.style.display = 'none';
 
   function setBlobHover(on, label) {
     blob.classList.toggle('blob-hovering', on);
@@ -1088,7 +1080,6 @@
     el.addEventListener('mouseenter', () => setBlobHover(true));
     el.addEventListener('mouseleave', () => setBlobHover(false));
   });
-  // cards get a little text hint instead of just growing, mirrors "view project" style hovers
   document.addEventListener('mouseover', e => {
     const card = e.target.closest('.card');
     if (card) setBlobHover(true, 'view');
@@ -1098,7 +1089,9 @@
     if (card && !e.relatedTarget?.closest('.card')) setBlobHover(false);
   });
 
-  // ---------- Magnetic buttons: nudge toward the cursor within their bounds ----------
+  // ============================================================
+  // Magnetic: ONLY on the three specified buttons
+  // ============================================================
   function initMagnetic(root = document) {
     root.querySelectorAll('.magnetic').forEach(el => {
       if (el.dataset.magneticBound) return;
@@ -1120,8 +1113,18 @@
     });
   }
   if (!coarsePointer) initMagnetic();
- 
-  // theme toggle, remembers choice
+
+  // Wire up the three magnetic buttons
+  document.getElementById('btn-see-work').addEventListener('click', () => {
+    document.getElementById('work').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('btn-say-hi').addEventListener('click', () => {
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // ============================================================
+  // Theme toggle
+  // ============================================================
   const toggle = document.getElementById('themeToggle');
   const body = document.body;
   if (localStorage.getItem('theme') === 'light') body.classList.remove('dark');
@@ -1129,21 +1132,32 @@
     body.classList.toggle('dark');
     localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
   });
- 
-  // subtle tilt on project cards
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      card.style.transform = `perspective(800px) rotateX(${-y / 45}deg) rotateY(${x / 45}deg) translateY(-2px)`;
+
+  // ============================================================
+  // Card tilt
+  // ============================================================
+  function tiltifyAll(root = document) {
+    root.querySelectorAll('.card:not([data-tilt])').forEach(card => {
+      card.dataset.tilt = '1';
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        card.style.transform = `perspective(800px) rotateX(${-y / 45}deg) rotateY(${x / 45}deg) translateY(-2px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
     });
-    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  }
+
+  // ============================================================
+  // Scroll fade-in sections
+  // ============================================================
+  const sections = document.querySelectorAll('section, .hero-static');
+  sections.forEach(s => {
+    s.style.opacity = 0;
+    s.style.transform = 'translateY(20px)';
+    s.style.transition = 'opacity .6s ease, transform .6s ease';
   });
- 
-  // fade sections in on scroll
-  const sections = document.querySelectorAll('section');
-  sections.forEach(s => { s.style.opacity = 0; s.style.transform = 'translateY(20px)'; s.style.transition = 'opacity .6s ease, transform .6s ease'; });
   const obs = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -1152,10 +1166,12 @@
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.12 });
   sections.forEach(s => obs.observe(s));
 
-  // ---------- Scrollspy: highlight the nav link for whatever section is in view ----------
+  // ============================================================
+  // Scrollspy
+  // ============================================================
   const navLinks = document.querySelectorAll('nav a[data-section]');
   const spySections = [...navLinks].map(a => document.getElementById(a.dataset.section)).filter(Boolean);
   const spyObs = new IntersectionObserver(entries => {
@@ -1170,7 +1186,9 @@
   }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
   spySections.forEach(s => spyObs.observe(s));
 
-  // ---------- Mobile hamburger nav ----------
+  // ============================================================
+  // Mobile nav
+  // ============================================================
   const navToggleBtn = document.getElementById('navToggleBtn');
   const siteNav = document.getElementById('siteNav');
   const navOverlay = document.getElementById('navOverlay');
@@ -1180,26 +1198,31 @@
     siteNav.classList.remove('open');
     navOverlay.classList.remove('visible');
   }
-  function openMobileNav() {
-    navToggleBtn.classList.add('active');
-    navToggleBtn.setAttribute('aria-expanded', 'true');
-    siteNav.classList.add('open');
-    navOverlay.classList.add('visible');
-  }
   navToggleBtn.addEventListener('click', () => {
-    siteNav.classList.contains('open') ? closeMobileNav() : openMobileNav();
+    const isOpen = siteNav.classList.contains('open');
+    if (isOpen) { closeMobileNav(); }
+    else {
+      navToggleBtn.classList.add('active');
+      navToggleBtn.setAttribute('aria-expanded', 'true');
+      siteNav.classList.add('open');
+      navOverlay.classList.add('visible');
+    }
   });
   navOverlay.addEventListener('click', closeMobileNav);
   navLinks.forEach(a => a.addEventListener('click', closeMobileNav));
 
-  // ---------- Back to top ----------
+  // ============================================================
+  // Back to top
+  // ============================================================
   const backToTopBtn = document.getElementById('back-to-top');
   window.addEventListener('scroll', () => {
     backToTopBtn.classList.toggle('visible', window.scrollY > window.innerHeight * 0.6);
   });
   backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-  // ---------- Modal accessibility: Escape to close + basic focus trap ----------
+  // ============================================================
+  // Modal helpers
+  // ============================================================
   function getOpenModal() {
     return [...document.querySelectorAll('.modal-overlay')].find(m => !m.classList.contains('hidden'));
   }
@@ -1218,103 +1241,85 @@
     const open = getOpenModal();
     if (!open) return;
     if (e.key === 'Escape') { closeModal(open); return; }
-    // trap focus within the open modal on Tab
     const focusables = open.querySelectorAll('button, a[href], input, [tabindex]:not([tabindex="-1"])');
     if (!focusables.length) return;
     const first = focusables[0], last = focusables[focusables.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
- 
-  // ---------- Loader ----------
+
+  // ============================================================
+  // Loader
+  // ============================================================
   (function pickLoader() {
     const r = Math.random();
     let chosen;
-    // washing machine ~20% (rare), the other three split the remaining 80% (~26.7% each)
-    if (r < 0.20) chosen = '.loader-washer';
-    else if (r < 0.467) chosen = '.loader-bars';
-    else if (r < 0.733) chosen = '.loader-cross';
+    if (r < 0.33) chosen = '.loader-bars';
+    else if (r < 0.66) chosen = '.loader-cross';
     else chosen = '.loader-dot-group';
     const el = document.querySelector(chosen);
     el.style.display = chosen === '.loader-dot-group' ? 'flex' : 'block';
   })();
- 
   window.addEventListener('load', () => {
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 600);
   });
- 
-  // ---------- Projects: data, preview grid, see-more browser, detail modal ----------
+
+  // ============================================================
+  // Projects
+  // ============================================================
   const GITHUB_USERNAME = 'hendricktkh';
   const GITHUB_CACHE_KEY = 'github-projects-cache';
-  const GITHUB_CACHE_TTL_MS = 30 * 60 * 1000; // reuse cached data for 30 min before refetching
-  let projects = []; // GitHub repos + hand-curated projects, most-recently-pushed first
+  const GITHUB_CACHE_TTL_MS = 30 * 60 * 1000;
+  let projects = [];
 
-  // Hand-curated projects that aren't (or aren't only) GitHub repos — e.g. this one
-  // opens an in-page tool instead of linking straight to code.
   const CUSTOM_PROJECTS = [
     {
       id: 'custom-cancer-care-compass',
       title: 'Cancer Care Compass',
       blurb: 'A cancer-awareness concept: quick facts, plus a tool to find real cancer-support charities near you.',
       tags: ['Awareness', 'Community'],
-      category: 'serious',
+      category: null,
       custom: true,
       action: 'openCancerTool',
-      pushedAt: new Date().toISOString() // keeps it near the top of "most recent"
+      pushedAt: new Date().toISOString()
     }
   ];
 
   function mapReposToProjects(repos) {
     return repos
-      .filter(r => !r.fork) // skip forks, only show your own work
-      .map(r => {
-        const topics = r.topics || [];
-        const category = topics.includes('serious') ? 'serious'
-          : topics.includes('fun') ? 'fun'
-          : null; // untagged repos show under "all" but not under either filter
-        return {
-          id: r.id,
-          title: r.name,
-          blurb: r.description || 'No description yet — take a look at the code to see what it does.',
-          tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
-          category,
-          repo: r.html_url,
-          stars: r.stargazers_count || 0,
-          pushedAt: r.pushed_at
-        };
-      });
+      .filter(r => !r.fork)
+      .map(r => ({
+        id: r.id,
+        title: r.name,
+        blurb: r.description || 'No description yet — take a look at the code to see what it does.',
+        tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
+        category: null,
+        repo: r.html_url,
+        stars: r.stargazers_count || 0,
+        pushedAt: r.pushed_at
+      }));
   }
 
   async function fetchGithubProjects() {
-    // serve from cache if it's fresh, so we don't hammer the unauthenticated
-    // GitHub API (60 requests/hour limit) on every single page load
     try {
       const cached = JSON.parse(localStorage.getItem(GITHUB_CACHE_KEY) || 'null');
       if (cached && Date.now() - cached.savedAt < GITHUB_CACHE_TTL_MS) {
-        finishLoadingProjects(cached.projects);
-        return;
+        finishLoadingProjects(cached.projects); return;
       }
-    } catch (e) { /* corrupt cache, ignore and refetch */ }
-
+    } catch (e) {}
     try {
       const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=pushed&direction=desc&per_page=100`);
       if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
       const repos = await res.json();
-
       const fetched = mapReposToProjects(repos);
-      try {
-        localStorage.setItem(GITHUB_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), projects: fetched }));
-      } catch (e) { /* storage full or unavailable, non-critical, skip caching */ }
+      try { localStorage.setItem(GITHUB_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), projects: fetched })); } catch (e) {}
       finishLoadingProjects(fetched);
     } catch (err) {
       console.warn('Could not load GitHub projects:', err);
-      // fall back to stale cache if we have one, rather than showing nothing
       try {
         const cached = JSON.parse(localStorage.getItem(GITHUB_CACHE_KEY) || 'null');
         finishLoadingProjects(cached ? cached.projects : []);
-      } catch (e) {
-        finishLoadingProjects([]);
-      }
+      } catch (e) { finishLoadingProjects([]); }
     }
   }
 
@@ -1340,21 +1345,11 @@
       ${linkHref ? `<a class="card-code-link" href="${linkHref}" target="_blank" rel="noopener" aria-label="Open ${project.title} on GitHub" title="View code">&lt;/&gt;</a>` : ''}
     `;
     const codeLink = card.querySelector('.card-code-link');
-    if (codeLink) codeLink.addEventListener('click', e => e.stopPropagation()); // quick-link shouldn't also open the modal
+    if (codeLink) codeLink.addEventListener('click', e => e.stopPropagation());
     card.addEventListener('click', () => openDetail(project, card));
     card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(project, card); } });
-    tiltify(card);
+    tiltifyAll(card.parentElement || document);
     return card;
-  }
-
-  function tiltify(card) {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      card.style.transform = `perspective(800px) rotateX(${-y / 45}deg) rotateY(${x / 45}deg) translateY(-2px)`;
-    });
-    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
   }
 
   function skeletonCard() {
@@ -1372,11 +1367,10 @@
     wrap.appendChild(p);
     if (showRetry) {
       const retryBtn = document.createElement('button');
-      retryBtn.className = 'btn magnetic';
+      retryBtn.className = 'btn';
       retryBtn.type = 'button';
       retryBtn.textContent = 'try again';
       retryBtn.addEventListener('click', onRetry);
-      initMagnetic(wrap);
       wrap.appendChild(retryBtn);
     }
     grid.appendChild(wrap);
@@ -1386,7 +1380,7 @@
     const grid = document.getElementById('preview-grid');
     grid.innerHTML = '';
     if (projects.length === 0) {
-      statusBlock(grid, "Couldn't load projects from GitHub right now — this can happen if the API rate limit was hit.", {
+      statusBlock(grid, "Couldn't load projects from GitHub right now.", {
         showRetry: true,
         onRetry: () => {
           grid.innerHTML = '';
@@ -1399,35 +1393,33 @@
       return;
     }
     projects.slice(0, 3).forEach(p => grid.appendChild(makeCardEl(p)));
+    tiltifyAll(grid);
   }
 
   function renderFeatured() {
     const grid = document.getElementById('featured-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    // feature the curated project plus your top-starred GitHub repo, if any
-    const topStarred = [...projects]
-      .filter(p => !p.custom)
-      .sort((a, b) => (b.stars || 0) - (a.stars || 0))[0];
+    const topStarred = [...projects].filter(p => !p.custom).sort((a, b) => (b.stars || 0) - (a.stars || 0))[0];
     const featured = [...CUSTOM_PROJECTS, topStarred].filter(Boolean).slice(0, 3);
     featured.forEach(p => grid.appendChild(makeCardEl(p)));
+    tiltifyAll(grid);
   }
 
-  function renderAllProjects(filter = 'all') {
+  function renderAllProjects() {
     const grid = document.getElementById('all-projects-grid');
     grid.innerHTML = '';
-    const filtered = projects.filter(p => filter === 'all' || p.category === filter);
-    if (filtered.length === 0) {
-      statusBlock(grid, filter === 'all'
-        ? 'No projects found.'
-        : `No repos tagged "${filter}" yet — add a "${filter}" topic to a repo on GitHub to have it show up here.`);
+    if (projects.length === 0) {
+      statusBlock(grid, 'No projects found.');
       return;
     }
-    filtered.forEach(p => grid.appendChild(makeCardEl(p)));
+    projects.forEach(p => grid.appendChild(makeCardEl(p)));
+    tiltifyAll(grid);
   }
 
   function openDetail(project, triggerEl) {
     if (project.custom && project.action === 'openCancerTool') {
+      renderCancerOrgs();
       openModal(document.getElementById('cancer-tool-modal'), triggerEl);
       return;
     }
@@ -1450,37 +1442,18 @@
   }
 
   document.getElementById('see-more-btn').addEventListener('click', e => {
-    document.querySelectorAll('.cat-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-    const allTab = document.querySelector('.cat-tab[data-cat="all"]');
-    allTab.classList.add('active');
-    allTab.setAttribute('aria-selected', 'true');
-    renderAllProjects('all');
+    renderAllProjects();
     openModal(document.getElementById('projects-modal'), e.currentTarget);
   });
 
-  document.querySelectorAll('.cat-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.cat-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-      renderAllProjects(tab.dataset.cat);
-    });
-  });
-
   document.querySelectorAll('.modal-close').forEach(btn => {
-    btn.addEventListener('click', () => {
-      closeModal(document.getElementById(btn.dataset.close));
-    });
+    btn.addEventListener('click', () => closeModal(document.getElementById(btn.dataset.close)));
+  });
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay); });
   });
 
-  // click outside the modal panel to close it
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) closeModal(overlay);
-    });
-  });
- 
-  // show skeleton cards immediately, then swap in real data once GitHub responds
+  // Show skeleton cards immediately
   const previewGridEl = document.getElementById('preview-grid');
   previewGridEl.setAttribute('aria-busy', 'true');
   previewGridEl.setAttribute('aria-live', 'polite');
@@ -1489,27 +1462,26 @@
   previewGridEl.appendChild(skeletonCard());
   previewGridEl.appendChild(skeletonCard());
   fetchGithubProjects().then(() => previewGridEl.setAttribute('aria-busy', 'false'));
- 
-  // ---------- Live Spotify "Now Playing" data ----------
+
+  // ============================================================
+  // Now Playing
+  // ============================================================
   async function loadNowPlaying() {
     try {
       const res = await fetch('listening.json', { cache: 'no-store' });
-      if (!res.ok) return; // file not there yet, keep placeholder
+      if (!res.ok) return;
       const data = await res.json();
- 
       const label = document.querySelector('.np-label');
       const song = document.querySelector('.np-song');
       const artist = document.querySelector('.np-artist');
       const widget = document.getElementById('now-playing');
       const artImg = document.getElementById('np-art');
       const iconFallback = document.getElementById('np-icon-fallback');
- 
       label.textContent = data.isPlaying ? 'Now playing' : 'Last played';
       song.textContent = data.song;
       artist.textContent = data.artist;
       widget.onclick = () => window.open(data.url, '_blank');
       widget.style.cursor = 'pointer';
- 
       if (data.albumArt) {
         artImg.src = data.albumArt;
         artImg.alt = `Album art for ${data.song} by ${data.artist}`;
@@ -1519,20 +1491,17 @@
         artImg.style.display = 'none';
         iconFallback.style.display = 'block';
       }
- 
-      // pause the equalizer bars if nothing is actively playing
       document.querySelectorAll('.np-bar').forEach(bar => {
         bar.style.animationPlayState = data.isPlaying ? 'running' : 'paused';
       });
-    } catch (err) {
-      console.warn('Could not load listening.json:', err);
-      // widget keeps its placeholder text as a graceful fallback
-    }
+    } catch (err) {}
   }
   loadNowPlaying();
-  setInterval(loadNowPlaying, 5 * 60 * 1000); // refresh every 5 min while the tab is open
- 
-  // ---------- Confetti easter egg ----------
+  setInterval(loadNowPlaying, 5 * 60 * 1000);
+
+  // ============================================================
+  // Confetti easter egg
+  // ============================================================
   const confettiCanvas = document.getElementById('confetti-canvas');
   const ctx = confettiCanvas.getContext('2d');
   function resizeCanvas() {
@@ -1541,11 +1510,10 @@
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
- 
   const confettiColors = ['#ff6b5e', '#6ee7c7', '#b26bff', '#ff6ec7', '#ffd166'];
   let particles = [];
   let animating = false;
- 
+
   function burstConfetti(x, y, count = 6) {
     for (let i = 0; i < count; i++) {
       particles.push({
@@ -1556,23 +1524,20 @@
         color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
         rotation: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.3,
-        life: 0,
-        maxLife: 120
+        life: 0, maxLife: 120
       });
     }
     if (!animating) { animating = true; requestAnimationFrame(animateConfetti); }
   }
- 
+
   let lastFrameTime = null;
   function animateConfetti(now) {
     if (lastFrameTime === null) lastFrameTime = now;
-    // delta-time scaling keeps motion speed consistent regardless of frame rate hiccups
     const dt = Math.min((now - lastFrameTime) / (1000 / 60), 2.5);
     lastFrameTime = now;
- 
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     particles.forEach(p => {
-      p.vy += 0.2 * dt; // gravity
+      p.vy += 0.2 * dt;
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.rotation += p.spin * dt;
@@ -1588,26 +1553,14 @@
       ctx.restore();
     });
     particles = particles.filter(p => p.life < p.maxLife && p.y < confettiCanvas.height + 40);
-    if (particles.length > 0) {
-      requestAnimationFrame(animateConfetti);
-    } else {
-      animating = false;
-      lastFrameTime = null;
-      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    }
+    if (particles.length > 0) { requestAnimationFrame(animateConfetti); }
+    else { animating = false; lastFrameTime = null; ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); }
   }
- 
+
   let storming = false;
   function startConfettiFill() {
     storming = true;
-    const fps = 60;
-    const durationMs = 4000; // 4 seconds total, continuous spawn (not staggered waves)
-    const totalFrames = Math.round((durationMs / 1000) * fps);
-    const startTime = performance.now();
- 
     const emitInterval = setInterval(() => {
-      const elapsed = performance.now() - startTime;
-      const framesLeft = totalFrames - Math.round((elapsed / 1000) * fps);
       for (let i = 0; i < 14; i++) {
         particles.push({
           x: Math.random() * confettiCanvas.width,
@@ -1618,78 +1571,57 @@
           color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
           rotation: Math.random() * Math.PI * 2,
           spin: (Math.random() - 0.5) * 0.25,
-          life: 0,
-          maxLife: Math.max(framesLeft, 20) // everything still clears out by the 6s mark
+          life: 0, maxLife: 100
         });
       }
       if (!animating) { animating = true; requestAnimationFrame(animateConfetti); }
-    }, 40); // continuous spawn tick, not discrete waves
- 
-    setTimeout(() => {
-      clearInterval(emitInterval);
-      storming = false;
-    }, durationMs);
+    }, 40);
+    setTimeout(() => { clearInterval(emitInterval); storming = false; }, 4000);
   }
- 
-  // Clicks only count toward the big fill if they land in quick succession.
-  // A gap longer than this resets the streak back to 1 instead of continuing the count.
+
   const CONSECUTIVE_CLICK_WINDOW_MS = 600;
- 
   let confettiClickCount = 0;
   let lastClickTime = 0;
   document.addEventListener('click', e => {
-    // skip confetti on toggle so theme switching stays quiet
     if (e.target.closest('#themeToggle')) return;
-    if (storming) return; // fill mode is already running, ignore extra clicks until it's done
- 
+    if (storming) return;
     const now = performance.now();
-    if (now - lastClickTime > CONSECUTIVE_CLICK_WINDOW_MS) {
-      confettiClickCount = 1; // too slow, streak broken — start over
-    } else {
-      confettiClickCount++;
-    }
+    if (now - lastClickTime > CONSECUTIVE_CLICK_WINDOW_MS) { confettiClickCount = 1; }
+    else { confettiClickCount++; }
     lastClickTime = now;
- 
     if (confettiClickCount >= 10) {
       startConfettiFill();
-      confettiClickCount = 0; // resets so the streak starts fresh toward the next fill
+      confettiClickCount = 0;
     } else {
-      const scaledCount = 3 + confettiClickCount * 2; // small, clearly gradual growth: 5, 7, 9, 11...
-      burstConfetti(e.clientX, e.clientY, scaledCount);
+      burstConfetti(e.clientX, e.clientY, 3 + confettiClickCount * 2);
     }
   });
 
-  // ---------- Contact: copy email to clipboard ----------
+  // ============================================================
+  // Copy email
+  // ============================================================
   const copyEmailBtn = document.getElementById('copy-email-btn');
   if (copyEmailBtn) {
     copyEmailBtn.addEventListener('click', async () => {
       const email = 'hendricktkh@gmail.com';
-      try {
-        await navigator.clipboard.writeText(email);
-      } catch (e) {
-        // clipboard API blocked (older browser / insecure context) — fall back to a manual select
+      try { await navigator.clipboard.writeText(email); }
+      catch (e) {
         const ta = document.createElement('textarea');
-        ta.value = email;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch (e2) { /* give up quietly */ }
+        ta.value = email; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e2) {}
         document.body.removeChild(ta);
       }
       const original = copyEmailBtn.textContent;
       copyEmailBtn.textContent = 'copied!';
       copyEmailBtn.classList.add('copied');
-      setTimeout(() => {
-        copyEmailBtn.textContent = original;
-        copyEmailBtn.classList.remove('copied');
-      }, 1800);
+      setTimeout(() => { copyEmailBtn.textContent = original; copyEmailBtn.classList.remove('copied'); }, 1800);
     });
   }
 
-  // ---------- Cancer Care Compass: real orgs + a live, location-based charity search ----------
-  // No charity locations are hard-coded here on purpose — nearby results come straight
-  // from Google Maps using the visitor's own location, so they're always current.
+  // ============================================================
+  // Cancer Care Compass
+  // ============================================================
   const CANCER_ORGS = [
     { name: 'American Cancer Society', desc: 'Patient support, research funding, and a 24/7 helpline.', url: 'https://www.cancer.org/' },
     { name: 'CancerCare', desc: 'Free professional support services for anyone affected by cancer.', url: 'https://www.cancercare.org/' },
@@ -1701,17 +1633,14 @@
 
   function renderCancerOrgs() {
     const grid = document.getElementById('cc-org-grid');
-    if (!grid || grid.childElementCount) return; // render once
+    if (!grid || grid.childElementCount) return;
     CANCER_ORGS.forEach(org => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `
-        <h3 style="font-size:1.05rem;">${org.name}</h3>
-        <p>${org.desc}</p>
-        <a href="${org.url}" target="_blank" rel="noopener">visit site ↗</a>
-      `;
+      card.innerHTML = `<h3 style="font-size:1.05rem;">${org.name}</h3><p>${org.desc}</p><a href="${org.url}" target="_blank" rel="noopener">visit site ↗</a>`;
       grid.appendChild(card);
     });
+    tiltifyAll(grid);
   }
 
   const ccLocateBtn = document.getElementById('cc-locate-btn');
@@ -1730,15 +1659,12 @@
           window.open(`https://www.google.com/maps/search/cancer+charity+or+support+center/@${latitude},${longitude},13z`, '_blank');
         },
         err => {
-          ccStatus.textContent = 'Could not get your location (permission denied or unavailable) — you can search "cancer charity near me" in Maps manually instead.';
-          console.warn('Geolocation error:', err);
+          ccStatus.textContent = 'Could not get your location — you can search "cancer charity near me" in Maps manually.';
         },
         { timeout: 8000 }
       );
     });
   }
-
-  renderCancerOrgs();
 </script>
  
 </body>
