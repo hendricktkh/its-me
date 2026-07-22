@@ -819,36 +819,68 @@
 
   // ---------- Projects: data, preview grid, see-more browser, detail modal ----------
   const GITHUB_USERNAME = 'hendricktkh';
+  const GITHUB_CACHE_KEY = 'github-projects-cache';
+  const GITHUB_CACHE_TTL_MS = 30 * 60 * 1000; // reuse cached data for 30 min before refetching
   let projects = []; // populated live from GitHub, most-recently-pushed first
 
+  function mapReposToProjects(repos) {
+    return repos
+      .filter(r => !r.fork) // skip forks, only show your own work
+      .map(r => {
+        const topics = r.topics || [];
+        const category = topics.includes('serious') ? 'serious'
+          : topics.includes('fun') ? 'fun'
+          : null; // untagged repos show under "all" but not under either filter
+        return {
+          id: r.id,
+          title: r.name,
+          blurb: r.description || 'No description yet — take a look at the code to see what it does.',
+          tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
+          category,
+          repo: r.html_url,
+          pushedAt: r.pushed_at
+        };
+      });
+  }
+
   async function fetchGithubProjects() {
+    // serve from cache if it's fresh, so we don't hammer the unauthenticated
+    // GitHub API (60 requests/hour limit) on every single page load
+    try {
+      const cached = JSON.parse(localStorage.getItem(GITHUB_CACHE_KEY) || 'null');
+      if (cached && Date.now() - cached.savedAt < GITHUB_CACHE_TTL_MS) {
+        projects = cached.projects;
+        projects.sort((a, b) => new Date(b.pushedAt) - new Date(a.pushedAt));
+        renderPreview();
+        return;
+      }
+    } catch (e) { /* corrupt cache, ignore and refetch */ }
+
     try {
       const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=pushed&direction=desc&per_page=100`);
       if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
       const repos = await res.json();
 
-      projects = repos
-        .filter(r => !r.fork) // skip forks, only show your own work
-        .map(r => {
-          const topics = r.topics || [];
-          const category = topics.includes('serious') ? 'serious'
-            : topics.includes('fun') ? 'fun'
-            : null; // untagged repos show under "all" but not under either filter
-          return {
-            id: r.id,
-            title: r.name,
-            blurb: r.description || 'No description yet — take a look at the code to see what it does.',
-            tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
-            category,
-            repo: r.html_url,
-            pushedAt: r.pushed_at
-          };
-        });
-      // already sorted by the API (pushed desc), but sort again client-side to be safe
+      projects = mapReposToProjects(repos);
       projects.sort((a, b) => new Date(b.pushedAt) - new Date(a.pushedAt));
+
+      try {
+        localStorage.setItem(GITHUB_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), projects }));
+      } catch (e) { /* storage full or unavailable, non-critical, skip caching */ }
     } catch (err) {
       console.warn('Could not load GitHub projects:', err);
-      projects = []; // preview/see-more will just show nothing rather than break
+      // fall back to stale cache if we have one, rather than showing nothing
+      try {
+        const cached = JSON.parse(localStorage.getItem(GITHUB_CACHE_KEY) || 'null');
+        if (cached) {
+          projects = cached.projects;
+          projects.sort((a, b) => new Date(b.pushedAt) - new Date(a.pushedAt));
+        } else {
+          projects = [];
+        }
+      } catch (e) {
+        projects = [];
+      }
     }
     renderPreview();
   }
