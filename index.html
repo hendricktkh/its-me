@@ -734,22 +734,12 @@
       grid.innerHTML = '';
       shown.forEach(repo => {
         const card = document.createElement('div');
-        card.className = 'card terminal';
-        const lang = repo.language || 'text';
-        const desc = repo.description ? repo.description.replace(/</g, '&lt;') : 'no description yet';
+        card.className = 'card';
         card.innerHTML = `
-          <div class="term-header">
-            <span class="term-dot red"></span>
-            <span class="term-dot yellow"></span>
-            <span class="term-dot green"></span>
-            <span class="term-title">${lang.toUpperCase()}</span>
-          </div>
-          <div class="term-body">
-            <p class="term-line"><span class="term-key">const</span> repo <span>=</span> <span class="term-str">"${repo.name}"</span>;</p>
-            <p class="term-line"><span class="term-comment">// ${desc}</span></p>
-            <p class="term-line"><span class="term-key">lang</span><span>:</span> <span class="term-lang">${lang}</span>${repo.stargazers_count ? `, <span class="term-key">stars</span><span>:</span> <span class="term-str">${repo.stargazers_count}</span>` : ''}</p>
-            <p class="term-line"><a class="term-link" href="${repo.html_url}" target="_blank" rel="noopener">→ open repo</a></p>
-          </div>
+          <h3>${repo.name}<span class="stars">${repo.stargazers_count ? '★ ' + repo.stargazers_count : ''}</span></h3>
+          <p>${repo.description ? repo.description : 'No description yet — add one on GitHub.'}</p>
+          <div>${repo.language ? `<span class="tag">${repo.language}</span>` : ''}</div>
+          <a href="${repo.html_url}" target="_blank" rel="noopener">View on GitHub →</a>
         `;
         grid.appendChild(card);
         tiltify(card);
