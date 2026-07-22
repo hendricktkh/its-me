@@ -219,18 +219,14 @@
   main { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
 
   /* ---------- Hero: greeting marquee ---------- */
-  .greet-wrap {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    padding: 0;
-    overflow: hidden;
-    background: transparent;
-    user-select: none;
+  .hero-greet {
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    min-height: 85vh;
     justify-content: center;
+    overflow: hidden;
+    padding: 3rem 0;
+    margin: 0 -2rem;
   }
 
   .greet-row {
@@ -243,11 +239,9 @@
   .greet-track {
     display: flex;
     width: max-content;
-    gap: 4vw;
+    gap: 2.6rem;
     will-change: transform;
     user-select: none;
-    line-height: 1.1;
-    padding: 0.18em 0;
   }
 
   .greet-track span {
@@ -256,8 +250,8 @@
     font-weight: 400;
     color: var(--text);
     white-space: nowrap;
-    letter-spacing: -0.06em;
-    line-height: 1.1;
+    letter-spacing: -0.01em;
+    line-height: 1;
     transition: color .4s ease;
   }
   body.dark .greet-track span { color: var(--text-dark); }
@@ -386,11 +380,9 @@
     border-radius: 20px;
     padding: 1.6rem;
     box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-    transition: box-shadow .25s ease;
+    transition: transform .25s ease, box-shadow .25s ease;
     transform-style: preserve-3d;
     will-change: transform;
-    overflow: hidden;
-    height: 100%;
   }
   body.dark .card {
     background: var(--panel-dark);
@@ -399,53 +391,9 @@
   .card:hover { box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light); }
   body.dark .card:hover { box-shadow: 12px 12px 24px var(--shadow-dark-dm), -12px -12px 24px var(--shadow-light-dm); }
 
-  /* Card corner expansion animation */
-  .card::before, .card::after {
-    position: absolute;
-    content: "";
-    pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .card::before {
-    top: 0;
-    right: 0;
-    width: 20%;
-    height: 20%;
-    background: linear-gradient(135deg, rgba(255, 107, 94, 0.15), rgba(255, 107, 94, 0.05));
-    border-radius: 0 20px 0 200%;
-  }
-  body.dark .card::before {
-    background: linear-gradient(135deg, rgba(178, 107, 255, 0.15), rgba(178, 107, 255, 0.05));
-  }
-
-  .card::after {
-    bottom: 0;
-    left: 0;
-    width: 20%;
-    height: 20%;
-    background: linear-gradient(135deg, rgba(110, 231, 199, 0.15), rgba(110, 231, 199, 0.05));
-    border-radius: 200% 0 20px 0;
-  }
-  body.dark .card::after {
-    background: linear-gradient(135deg, rgba(255, 110, 199, 0.15), rgba(255, 110, 199, 0.05));
-  }
-
-  .card:hover::before {
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-  }
-
-  .card:hover::after {
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-  }
-
-  .card h3 { margin: 0 0 0.5rem; padding-right: 1.9rem; font-family: var(--font-display); font-size: 1.25rem; position: relative; z-index: 1; }
-  .card p { margin: 0 0 1rem; font-size: 0.9rem; opacity: 0.75; line-height: 1.5; position: relative; z-index: 1; }
-  .card a { color: var(--accent); font-size: 0.85rem; text-decoration: none; font-weight: 600; position: relative; z-index: 1; }
+  .card h3 { margin: 0 0 0.5rem; padding-right: 1.9rem; font-family: var(--font-display); font-size: 1.25rem; }
+  .card p { margin: 0 0 1rem; font-size: 0.9rem; opacity: 0.75; line-height: 1.5; }
+  .card a { color: var(--accent); font-size: 0.85rem; text-decoration: none; font-weight: 600; }
 
   .tag {
     display: inline-block;
@@ -456,8 +404,6 @@
     margin-right: 0.4rem;
     margin-bottom: 0.6rem;
     box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
-    position: relative;
-    z-index: 1;
   }
   body.dark .tag {
     background: var(--bg-dark);
@@ -646,7 +592,6 @@
     position: absolute; top: 1.2rem; right: 1.4rem;
     background: none; border: none; font-size: 1.6rem; line-height: 1;
     cursor: pointer; color: inherit; opacity: 0.6;
-    z-index: 100;
   }
   .modal-close:hover { opacity: 1; }
 
@@ -662,12 +607,6 @@
     background: var(--panel); padding: 0.7rem 1rem; border-radius: 16px;
     box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
     max-width: 230px;
-    transition: opacity .3s ease, visibility .3s ease;
-  }
-  .now-playing.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
   }
   body.dark .now-playing {
     background: var(--panel-dark);
@@ -731,7 +670,6 @@
     font-size: 0.85rem;
     box-shadow: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
     transition: transform .15s ease;
-    z-index: 2;
   }
   .card-code-link:hover { transform: scale(1.12); }
   body.dark .card-code-link {
@@ -799,7 +737,7 @@
   <div class="loader-cross"></div>
 </div>
 
-<div id="now-playing" class="now-playing hidden">
+<div id="now-playing" class="now-playing">
   <img id="np-art" class="np-art" alt="" style="display:none;">
   <svg id="np-icon-fallback" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" class="np-icon"><radialGradient gradientUnits="userSpaceOnUse" gradientTransform="translate(0 -534)" r="43.888" id="RG"><stop offset="0" stop-color="#ff6b5e"/><stop offset="1" stop-color="#ff6b5e"/></radialGradient><circle cx="32" cy="568" r="43.888" fill="url(#RG)"/><g transform="translate(0 534)"><circle cx="32" cy="17" r="13" fill="#fff" opacity="0.3"/><path d="M16 32h32" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.6"/><circle cx="32" cy="32" r="4" fill="#fff"/></g></svg>
   <div class="np-info">
@@ -833,91 +771,148 @@
 <main>
 
   <!-- ===== HERO: Marquee ===== -->
+  <style>
+.greet-wrap {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height:85vh;
+  justify-content:center;
+}
+.greet-track {
+  display: flex;
+  width: max-content;
+  gap: 4vw;
+  will-change: transform;
+}
+.greet-track span {
+  font-family: var(--font-voice, Georgia, serif);
+  font-size: clamp(3.2rem, 8.8vw, 9.6rem);
+  font-weight: 400;
+  color: var(--text-primary);
+  white-space: nowrap;
+  letter-spacing: -0.06em;
+  line-height: 0.82;
+}
+.greet-track span.dim {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.greet-track span.mid {
+  color: var(--text-secondary);
+}
+.row-left .greet-track {
+  animation: scrollLeft 51.3s linear infinite;
+}
+.row-right .greet-track {
+  animation: scrollRight 56.7s linear infinite;
+}
+@keyframes scrollLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes scrollRight {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.dot {
+  opacity: 0.25;
+  font-style: normal;
+  font-family: var(--font-sans);
+}
+  </style>
+
   <div class="greet-wrap" aria-hidden="true">
   <div class="row-left" style="display:flex;overflow:hidden;">
     <div class="greet-track" id="row1">
-      <span>hola</span><span class="g-dot">·</span>
-      <span class="g-dim">こんにちは</span><span class="g-dot">·</span>
-      <span class="g-mid">bonjour</span><span class="g-dot">·</span>
-      <span>안녕하세요</span><span class="g-dot">·</span>
-      <span class="g-dim">ciao</span><span class="g-dot">·</span>
-      <span class="g-mid">مرحبا</span><span class="g-dot">·</span>
-      <span>hei</span><span class="g-dot">·</span>
-      <span class="g-dim">olá</span><span class="g-dot">·</span>
-      <span class="g-mid">你好</span><span class="g-dot">·</span>
-      <span>привет</span><span class="g-dot">·</span>
-      <span class="g-dim">salut</span><span class="g-dot">·</span>
-      <span class="g-mid">नमस्ते</span><span class="g-dot">·</span>
-      <span>hola</span><span class="g-dot">·</span>
-      <span class="g-dim">こんにちは</span><span class="g-dot">·</span>
-      <span class="g-mid">bonjour</span><span class="g-dot">·</span>
-      <span>안녕하세요</span><span class="g-dot">·</span>
-      <span class="g-dim">ciao</span><span class="g-dot">·</span>
-      <span class="g-mid">مرحبا</span><span class="g-dot">·</span>
-      <span>hei</span><span class="g-dot">·</span>
-      <span class="g-dim">olá</span><span class="g-dot">·</span>
-      <span class="g-mid">你好</span><span class="g-dot">·</span>
-      <span>привет</span><span class="g-dot">·</span>
-      <span class="g-dim">salut</span><span class="g-dot">·</span>
-      <span class="g-mid">नमस्ते</span><span class="g-dot">·</span>
+      <span>hola</span><span class="dot">·</span>
+      <span class="dim">こんにちは</span><span class="dot">·</span>
+      <span class="mid">bonjour</span><span class="dot">·</span>
+      <span>안녕하세요</span><span class="dot">·</span>
+      <span class="dim">ciao</span><span class="dot">·</span>
+      <span class="mid">مرحبا</span><span class="dot">·</span>
+      <span>hei</span><span class="dot">·</span>
+      <span class="dim">olá</span><span class="dot">·</span>
+      <span class="mid">你好</span><span class="dot">·</span>
+      <span>привет</span><span class="dot">·</span>
+      <span class="dim">salut</span><span class="dot">·</span>
+      <span class="mid">नमस्ते</span><span class="dot">·</span>
+      <span>hola</span><span class="dot">·</span>
+      <span class="dim">こんにちは</span><span class="dot">·</span>
+      <span class="mid">bonjour</span><span class="dot">·</span>
+      <span>안녕하세요</span><span class="dot">·</span>
+      <span class="dim">ciao</span><span class="dot">·</span>
+      <span class="mid">مرحبا</span><span class="dot">·</span>
+      <span>hei</span><span class="dot">·</span>
+      <span class="dim">olá</span><span class="dot">·</span>
+      <span class="mid">你好</span><span class="dot">·</span>
+      <span>привет</span><span class="dot">·</span>
+      <span class="dim">salut</span><span class="dot">·</span>
+      <span class="mid">नमस्ते</span><span class="dot">·</span>
     </div>
   </div>
 
   <div class="row-right" style="display:flex;overflow:hidden;">
     <div class="greet-track">
-      <span class="g-mid">Hallo</span><span class="g-dot">·</span>
-      <span class="g-dim">سلام</span><span class="g-dot">·</span>
-      <span>sawubona</span><span class="g-dot">·</span>
-      <span class="g-mid">γεια</span><span class="g-dot">·</span>
-      <span class="g-dim">שלום</span><span class="g-dot">·</span>
-      <span>merhaba</span><span class="g-dot">·</span>
-      <span class="g-mid">xin chào</span><span class="g-dot">·</span>
-      <span class="g-dim">hej</span><span class="g-dot">·</span>
-      <span>kumusta</span><span class="g-dot">·</span>
-      <span class="g-mid">aloha</span><span class="g-dot">·</span>
-      <span class="g-dim">cześć</span><span class="g-dot">·</span>
-      <span>szia</span><span class="g-dot">·</span>
-      <span class="g-mid">Hallo</span><span class="g-dot">·</span>
-      <span class="g-dim">سلام</span><span class="g-dot">·</span>
-      <span>sawubona</span><span class="g-dot">·</span>
-      <span class="g-mid">γεια</span><span class="g-dot">·</span>
-      <span class="g-dim">שלום</span><span class="g-dot">·</span>
-      <span>merhaba</span><span class="g-dot">·</span>
-      <span class="g-mid">xin chào</span><span class="g-dot">·</span>
-      <span class="g-dim">hej</span><span class="g-dot">·</span>
-      <span>kumusta</span><span class="g-dot">·</span>
-      <span class="g-mid">aloha</span><span class="g-dot">·</span>
-      <span class="g-dim">cześć</span><span class="g-dot">·</span>
-      <span>szia</span><span class="g-dot">·</span>
+      <span class="mid">Hallo</span><span class="dot">·</span>
+      <span class="dim">سلام</span><span class="dot">·</span>
+      <span>sawubona</span><span class="dot">·</span>
+      <span class="mid">γεια</span><span class="dot">·</span>
+      <span class="dim">שלום</span><span class="dot">·</span>
+      <span>merhaba</span><span class="dot">·</span>
+      <span class="mid">xin chào</span><span class="dot">·</span>
+      <span class="dim">hej</span><span class="dot">·</span>
+      <span>kumusta</span><span class="dot">·</span>
+      <span class="mid">aloha</span><span class="dot">·</span>
+      <span class="dim">cześć</span><span class="dot">·</span>
+      <span>szia</span><span class="dot">·</span>
+      <span class="mid">Hallo</span><span class="dot">·</span>
+      <span class="dim">سلام</span><span class="dot">·</span>
+      <span>sawubona</span><span class="dot">·</span>
+      <span class="mid">γεια</span><span class="dot">·</span>
+      <span class="dim">שלום</span><span class="dot">·</span>
+      <span>merhaba</span><span class="dot">·</span>
+      <span class="mid">xin chào</span><span class="dot">·</span>
+      <span class="dim">hej</span><span class="dot">·</span>
+      <span>kumusta</span><span class="dot">·</span>
+      <span class="mid">aloha</span><span class="dot">·</span>
+      <span class="dim">cześć</span><span class="dot">·</span>
+      <span>szia</span><span class="dot">·</span>
     </div>
   </div>
 
   <div class="row-left" style="display:flex;overflow:hidden;">
     <div class="greet-track" style="animation-duration:62.1s;">
-      <span class="g-dim">dobrý den</span><span class="g-dot">·</span>
-      <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="g-dot">·</span>
-      <span class="g-mid">góðan dag</span><span class="g-dot">·</span>
-      <span class="g-dim">hujambo</span><span class="g-dot">·</span>
-      <span>konnichiwa</span><span class="g-dot">·</span>
-      <span class="g-mid">buna</span><span class="g-dot">·</span>
-      <span class="g-dim">ey</span><span class="g-dot">·</span>
-      <span>kaixo</span><span class="g-dot">·</span>
-      <span class="g-mid">zdravo</span><span class="g-dot">·</span>
-      <span class="g-dim">mingalaba</span><span class="g-dot">·</span>
-      <span>tere</span><span class="g-dot">·</span>
-      <span class="g-mid">labas</span><span class="g-dot">·</span>
-      <span class="g-dim">dobrý den</span><span class="g-dot">·</span>
-      <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="g-dot">·</span>
-      <span class="g-mid">góðan dag</span><span class="g-dot">·</span>
-      <span class="g-dim">hujambo</span><span class="g-dot">·</span>
-      <span>konnichiwa</span><span class="g-dot">·</span>
-      <span class="g-mid">buna</span><span class="g-dot">·</span>
-      <span class="g-dim">ey</span><span class="g-dot">·</span>
-      <span>kaixo</span><span class="g-dot">·</span>
-      <span class="g-mid">zdravo</span><span class="g-dot">·</span>
-      <span class="g-dim">mingalaba</span><span class="g-dot">·</span>
-      <span>tere</span><span class="g-dot">·</span>
-      <span class="g-mid">labas</span><span class="g-dot">·</span>
+      <span class="dim">dobrý den</span><span class="dot">·</span>
+      <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="dot">·</span>
+      <span class="mid">góðan dag</span><span class="dot">·</span>
+      <span class="dim">hujambo</span><span class="dot">·</span>
+      <span>konnichiwa</span><span class="dot">·</span>
+      <span class="mid">buna</span><span class="dot">·</span>
+      <span class="dim">ey</span><span class="dot">·</span>
+      <span>kaixo</span><span class="dot">·</span>
+      <span class="mid">zdravo</span><span class="dot">·</span>
+      <span class="dim">mingalaba</span><span class="dot">·</span>
+      <span>tere</span><span class="dot">·</span>
+      <span class="mid">labas</span><span class="dot">·</span>
+      <span class="dim">dobrý den</span><span class="dot">·</span>
+      <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="dot">·</span>
+      <span class="mid">góðan dag</span><span class="dot">·</span>
+      <span class="dim">hujambo</span><span class="dot">·</span>
+      <span>konnichiwa</span><span class="dot">·</span>
+      <span class="mid">buna</span><span class="dot">·</span>
+      <span class="dim">ey</span><span class="dot">·</span>
+      <span>kaixo</span><span class="dot">·</span>
+      <span class="mid">zdravo</span><span class="dot">·</span>
+      <span class="dim">mingalaba</span><span class="dot">·</span>
+      <span>tere</span><span class="dot">·</span>
+      <span class="mid">labas</span><span class="dot">·</span>
     </div>
   </div>
 </div>
@@ -1003,7 +998,7 @@
 </footer>
 
 <script>
-  // ===== Theme toggle =====
+  // Theme toggle
   const themeToggle = document.getElementById('themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const savedTheme = localStorage.getItem('theme');
@@ -1019,115 +1014,65 @@
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   });
 
-  // ===== Blob cursor with momentum physics =====
+  // Blob cursor
   const blob = document.getElementById('blob');
   let mouseX = 0, mouseY = 0;
-  let blobX = 0, blobY = 0;
-  let velocityX = 0, velocityY = 0;
-  const damping = 0.85;
-  const springStrength = 0.15;
-  const maxVelocity = 8;
-  const overshoot = 1.3; // How much past cursor it goes
 
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+    blob.style.left = mouseX + 'px';
+    blob.style.top = mouseY + 'px';
   });
 
-  // Check if element is clickable
   function isClickableElement(el) {
     if (!el) return false;
-    const clickable = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'LABEL', '[role="button"]'];
+    const clickable = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'LABEL'];
     if (clickable.includes(el.tagName)) return true;
     if (el.onclick || el.getAttribute('role') === 'button') return true;
     return getComputedStyle(el).cursor === 'pointer';
   }
 
   document.addEventListener('mouseover', (e) => {
-    const isClickable = isClickableElement(e.target);
-    if (isClickable) {
+    if (isClickableElement(e.target)) {
       blob.classList.add('blob-text');
     }
   });
 
   document.addEventListener('mouseout', (e) => {
-    const isClickable = isClickableElement(e.target);
-    if (isClickable) {
+    if (isClickableElement(e.target)) {
       blob.classList.remove('blob-text');
     }
   });
 
-  // Blob momentum animation loop
-  function animateBlob() {
-    // Calculate direction to cursor
-    const dx = mouseX - blobX;
-    const dy = mouseY - blobY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance > 0.5) {
-      // Add spring force toward cursor with overshoot
-      velocityX += (dx * springStrength) / distance * overshoot;
-      velocityY += (dy * springStrength) / distance * overshoot;
-    }
-
-    // Cap velocity
-    const speed = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-    if (speed > maxVelocity) {
-      velocityX = (velocityX / speed) * maxVelocity;
-      velocityY = (velocityY / speed) * maxVelocity;
-    }
-
-    // Apply damping (friction)
-    velocityX *= damping;
-    velocityY *= damping;
-
-    // Update position
-    blobX += velocityX;
-    blobY += velocityY;
-
-    // Set blob position
-    blob.style.transform = `translate(calc(-50% + ${blobX}px), calc(-50% + ${blobY}px))`;
-
-    requestAnimationFrame(animateBlob);
-  }
-  animateBlob();
-
-  // ===== Now Playing widget =====
+  // Now Playing
   const npWidget = document.getElementById('now-playing');
   const npSong = document.querySelector('.np-song');
   const npArtist = document.querySelector('.np-artist');
   const npArt = document.getElementById('np-art');
-  const npIconFallback = document.getElementById('np-icon-fallback');
 
   async function updateNowPlaying() {
     try {
       const response = await fetch('listening.json');
-      if (!response.ok) {
-        npWidget.classList.add('hidden');
-        return;
-      }
+      if (!response.ok) return;
       const data = await response.json();
       if (data.isPlaying) {
-        npWidget.classList.remove('hidden');
         npSong.textContent = data.item.name;
         npArtist.textContent = data.item.artists[0].name;
         if (data.item.album.images[0]) {
           npArt.src = data.item.album.images[0].url;
           npArt.style.display = 'block';
-          npIconFallback.style.display = 'none';
         }
-      } else {
-        npWidget.classList.add('hidden');
       }
     } catch (err) {
-      npWidget.classList.add('hidden');
+      // Silent fail
     }
   }
 
   updateNowPlaying();
-  setInterval(updateNowPlaying, 30000); // Update every 30s
+  setInterval(updateNowPlaying, 30000);
 
-  // ===== Progress nav =====
+  // Progress nav
   const progressNav = document.getElementById('progress-nav');
   const sections = document.querySelectorAll('section');
   const sectionNames = ['featured', 'work', 'about', 'contact'];
@@ -1147,7 +1092,6 @@
     progressNav.appendChild(item);
   });
 
-  // Intersection observer for progress nav
   const navItems = document.querySelectorAll('.pnav-item');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -1163,7 +1107,7 @@
 
   sections.forEach(section => observer.observe(section));
 
-  // ===== Back to top =====
+  // Back to top
   const backToTopBtn = document.getElementById('back-to-top');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
@@ -1177,7 +1121,7 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // ===== GitHub Projects API =====
+  // GitHub Projects
   function fetchGithubProjects() {
     return fetch('https://api.github.com/users/hendricktkh/repos?sort=updated&per_page=12')
       .then(res => res.json())
@@ -1224,7 +1168,6 @@
     });
   }
 
-  // Fetch and render projects
   fetchGithubProjects().then(projects => {
     renderPreview(projects);
     
