@@ -710,7 +710,12 @@
     <div class="modal">
       <button class="modal-close" data-close="projects-modal">&times;</button>
       <h2 class="section-title" style="margin-bottom:0.4rem;">all my projects<span class="dot">.</span></h2>
-      <p style="opacity:0.6; font-size:0.85rem; margin: 0 0 1.5rem;">pulled live from GitHub, most recent first</p>
+      <p style="opacity:0.6; font-size:0.85rem; margin: 0 0 1rem;">pulled live from GitHub, most recent first</p>
+      <div class="category-tabs">
+        <button class="cat-tab active" data-cat="all">all</button>
+        <button class="cat-tab" data-cat="fun">random / fun</button>
+        <button class="cat-tab" data-cat="serious">serious mode</button>
+      </div>
       <div class="grid" id="all-projects-grid"></div>
     </div>
   </div>
@@ -824,14 +829,21 @@
 
       projects = repos
         .filter(r => !r.fork) // skip forks, only show your own work
-        .map(r => ({
-          id: r.id,
-          title: r.name,
-          blurb: r.description || 'No description yet — take a look at the code to see what it does.',
-          tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
-          repo: r.html_url,
-          pushedAt: r.pushed_at
-        }));
+        .map(r => {
+          const topics = r.topics || [];
+          const category = topics.includes('serious') ? 'serious'
+            : topics.includes('fun') ? 'fun'
+            : null; // untagged repos show under "all" but not under either filter
+          return {
+            id: r.id,
+            title: r.name,
+            blurb: r.description || 'No description yet — take a look at the code to see what it does.',
+            tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
+            category,
+            repo: r.html_url,
+            pushedAt: r.pushed_at
+          };
+        });
       // already sorted by the API (pushed desc), but sort again client-side to be safe
       projects.sort((a, b) => new Date(b.pushedAt) - new Date(a.pushedAt));
     } catch (err) {
@@ -886,10 +898,21 @@
     projects.slice(0, 3).forEach(p => grid.appendChild(makeCardEl(p)));
   }
 
-  function renderAllProjects() {
+  function renderAllProjects(filter = 'all') {
     const grid = document.getElementById('all-projects-grid');
     grid.innerHTML = '';
-    projects.forEach(p => grid.appendChild(makeCardEl(p)));
+    const filtered = projects.filter(p => filter === 'all' || p.category === filter);
+    if (filtered.length === 0) {
+      const p = document.createElement('p');
+      p.style.opacity = '0.6';
+      p.style.fontSize = '0.9rem';
+      p.textContent = filter === 'all'
+        ? 'No projects found.'
+        : `No repos tagged "${filter}" yet — add a "${filter}" topic to a repo on GitHub to have it show up here.`;
+      grid.appendChild(p);
+      return;
+    }
+    filtered.forEach(p => grid.appendChild(makeCardEl(p)));
   }
 
   function openDetail(project) {
@@ -901,8 +924,18 @@
   }
 
   document.getElementById('see-more-btn').addEventListener('click', () => {
-    renderAllProjects();
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.cat-tab[data-cat="all"]').classList.add('active');
+    renderAllProjects('all');
     document.getElementById('projects-modal').classList.remove('hidden');
+  });
+
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderAllProjects(tab.dataset.cat);
+    });
   });
 
   document.querySelectorAll('.modal-close').forEach(btn => {
